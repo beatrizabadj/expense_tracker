@@ -1,19 +1,20 @@
 from expense import Expense
+import datetime
 
 def main():
     print("Ejecutando")
     expense_file = "expenses.csv"
-    budget = 1000  # Define el presupuesto
+    budget = float(input("Introduce tu presupuesto: "))  # Solicitar al usuario que introduzca el presupuesto
 
     # Entrada del usuario
     expense = get_user_expense()
-    print(f"Gasto introducido: {expense.name}, {expense.category}, {expense.amount}")  # Depuración
-    
+    print(f"Gasto introducido: {expense.name}, {expense.category}, {expense.amount}")
+
     # Escribir entrada en el archivo
     save_expense(expense, expense_file)
 
     # Leer gastos y mostrar
-    show_expenses(expense_file)
+    show_expenses(expense_file, budget)
 
 def get_user_expense():
     print("Introduciendo entrada del usuari@: ")
@@ -23,7 +24,7 @@ def get_user_expense():
 
     expense_categories = ["Alimentación", "Vivienda", "Transporte", "Ahorro e inversión", "Ropa y accesorios", "Vacaciones", "Otros"]
 
-    while True: 
+    while True:
         print("Selecciona la categoría: ")
         for index, category in enumerate(expense_categories, start=1):
             print(f"{index}. {category}")
@@ -40,28 +41,28 @@ def get_user_expense():
             print("Categoría no encontrada.")
 
 def save_expense(expense: Expense, expense_file):
-    print(f"Guardando datos {expense.name}, {expense.category}, {expense.amount} a {expense_file}")
+    now = datetime.datetime.now()
+    expense_date = now.strftime("%Y-%m-%d")  # Obtener la fecha actual en formato YYYY-MM-DD
+    print(f"Guardando datos {expense.name}, {expense.category}, {expense.amount} en {expense_file} el {expense_date}")
     with open(expense_file, "a") as f:
-        f.write(f"{expense.name},{expense.category},{expense.amount}\n")
+        f.write(f"{expense.name},{expense.category},{expense.amount},{expense_date}\n")
 
-def show_expenses(expense_file):
+def show_expenses(expense_file, budget):
     print("Mostrando gastos: ")
     expenses = []
     with open(expense_file, "r") as f:
         lines = f.readlines()
-        for line in lines:
+        for index, line in enumerate(lines, start=1):
             parts = line.strip().split(",")
-            if len(parts) == 3:
-                expense_name, expense_category, expense_amount = parts
-                print(f"Leyendo: {expense_name}, {expense_category}, {expense_amount}")  # Depuración
+            if len(parts) == 4:
+                expense_name, expense_category, expense_amount, expense_date = parts
+                print(f"Leyendo {index}: {expense_name}, {expense_category}, {expense_amount} (Fecha: {expense_date})")
                 line_expense = Expense(name=expense_name, amount=float(expense_amount), category=expense_category)
                 expenses.append(line_expense)
-            else:
-                print(f"Formato incorrecto en la línea: {line.strip()}")
 
     category_amount = {}
-    for expense in expenses:
-        print(f"Procesando gasto: {expense.name}, {expense.category}, {expense.amount}")  # Depuración
+    for index, expense in enumerate(expenses, start=1):
+        print(f"Procesando {index}: {expense.name}, {expense.category}, {expense.amount}")
         if expense.category in category_amount:
             category_amount[expense.category] += expense.amount
         else:
@@ -74,6 +75,8 @@ def show_expenses(expense_file):
     total_spent = sum(x.amount for x in expenses)
     print(f"Total gastado: ${total_spent:.2f}")
 
-# Ejecutar el archivo solo sin ser parte de otro archivo
+    remaining_budget = budget - total_spent
+    print(f"Presupuesto Restante: ${remaining_budget:.2f}")
+
 if __name__ == "__main__":
     main()
