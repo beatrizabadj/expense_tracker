@@ -3,11 +3,11 @@ from expense import Expense
 def main():
     print("Ejecutando")
     expense_file = "expenses.csv"
-    burget = 1000;
+    budget = 1000  # Define el presupuesto
 
     # Entrada del usuario
     expense = get_user_expense()
-    print(expense)
+    print(f"Gasto introducido: {expense.name}, {expense.category}, {expense.amount}")  # Depuración
     
     # Escribir entrada en el archivo
     save_expense(expense, expense_file)
@@ -40,7 +40,7 @@ def get_user_expense():
             print("Categoría no encontrada.")
 
 def save_expense(expense: Expense, expense_file):
-    print(f"Guardando datos {expense} a {expense_file}")
+    print(f"Guardando datos {expense.name}, {expense.category}, {expense.amount} a {expense_file}")
     with open(expense_file, "a") as f:
         f.write(f"{expense.name},{expense.category},{expense.amount}\n")
 
@@ -53,6 +53,7 @@ def show_expenses(expense_file):
             parts = line.strip().split(",")
             if len(parts) == 3:
                 expense_name, expense_category, expense_amount = parts
+                print(f"Leyendo: {expense_name}, {expense_category}, {expense_amount}")  # Depuración
                 line_expense = Expense(name=expense_name, amount=float(expense_amount), category=expense_category)
                 expenses.append(line_expense)
             else:
@@ -60,6 +61,7 @@ def show_expenses(expense_file):
 
     category_amount = {}
     for expense in expenses:
+        print(f"Procesando gasto: {expense.name}, {expense.category}, {expense.amount}")  # Depuración
         if expense.category in category_amount:
             category_amount[expense.category] += expense.amount
         else:
